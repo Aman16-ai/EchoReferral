@@ -13,6 +13,7 @@ import com.example.echoreferral.data.repository.authentication.AuthRepo
 import com.example.echoreferral.data.repository.authentication.AuthRepoImp
 import com.example.echoreferral.data.repository.sharedPreferreneceManager.SharedPreferrenceManagerRepo
 import com.example.echoreferral.data.repository.sharedPreferreneceManager.SharedPreferrenceManagerRepoI
+import com.example.echoreferral.utils.ApiState
 import kotlinx.coroutines.launch
 
 class LoginViewModel() : ViewModel() {
@@ -21,7 +22,7 @@ class LoginViewModel() : ViewModel() {
 
     private val authRepo : AuthRepo = AuthRepoImp()
     private lateinit var sharedPreferrenceManagerRepo : SharedPreferrenceManagerRepoI
-    val loginResponse : LiveData<LoginApiResponse?> = authRepo.loginApiResponse
+    val loginResponse : LiveData<ApiState<LoginApiResponse?>> = authRepo.loginApiResponse
 
 
     fun loginUser(payload : LoginFormPayload) {

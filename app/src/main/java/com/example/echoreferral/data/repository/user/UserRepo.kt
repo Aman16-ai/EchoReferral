@@ -13,11 +13,16 @@ class UserRepo : UserRepoI {
         get() = _userProfile
 
     override suspend fun getUserDetails(token: String) {
-        val result = AuthService
-            .authServiceInstance
-            .getUserDetails("Bearer $token")
-            .body()
-        _userProfile.postValue(result?.Response)
+        try {
+            val result = AuthService
+                .authServiceInstance
+                .getUserDetails("Bearer $token")
+                .body()
+            _userProfile.postValue(result?.Response)
+        }
+        catch (err:Error) {
+            _userProfile.postValue(null)
+        }
     }
 
 }

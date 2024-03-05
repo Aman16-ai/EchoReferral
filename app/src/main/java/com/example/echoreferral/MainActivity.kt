@@ -1,13 +1,10 @@
 package com.example.echoreferral
 
 import android.annotation.SuppressLint
-import android.media.Image
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -22,29 +19,22 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Notifications
-import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Send
 import androidx.compose.material.icons.outlined.AccountCircle
 import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.Notifications
-import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material.icons.outlined.Send
 import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.NavigationBar
-import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -55,13 +45,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.colorspace.Rgb
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.modifier.modifierLocalConsumer
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.vectorResource
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.text.capitalize
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -74,14 +62,14 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.echoreferral.data.repository.sharedPreferreneceManager.SharedPreferrenceManagerRepo
 import com.example.echoreferral.ui.common.viewmodels.UserViewModel
+import com.example.echoreferral.ui.home.HomeScreen
 import com.example.echoreferral.ui.job.JobScreen
-import com.example.echoreferral.ui.main.MainScreen
 import com.example.echoreferral.ui.profile.ProfileScreen
 import com.example.echoreferral.ui.registration.LoginScreen
 
 import com.example.echoreferral.ui.registration.RegistrationScreen
 import com.example.echoreferral.ui.theme.EchoReferralTheme
-import org.w3c.dom.Text
+import kotlinx.coroutines.delay
 
 class MainActivity : ComponentActivity() {
 
@@ -103,14 +91,25 @@ class MainActivity : ComponentActivity() {
 
                    }
                    Box(modifier = Modifier.fillMaxHeight()) {
-                       Scaffold(modifier = Modifier.fillMaxSize(),bottomBar = {
-                           val currentRoute = navBackStackEntry?.destination?.route
-                           Log.d("route", "onCreate: $currentRoute")
-                           if(currentRoute != "register" && currentRoute != "login") {
-                                BottomNavigationGraph(navController = navController,navigationSelectedItem,onIndexChange)
-                            }
-                       }) {
-                           App(navController)
+                       Scaffold(
+                           modifier = Modifier.fillMaxSize(),
+                           topBar = {
+                               val currentRoute = navBackStackEntry?.destination?.route
+                               if(currentRoute != "register" && currentRoute != "login") {
+                                   TopNavBar(title=currentRoute?:"Home",navController = navController)
+                               }
+                           },
+                           bottomBar = {
+                               val currentRoute = navBackStackEntry?.destination?.route
+                               Log.d("route", "onCreate: $currentRoute")
+                               if(currentRoute != "register" && currentRoute != "login") {
+                                    BottomNavigationGraph(navController = navController,navigationSelectedItem,onIndexChange)
+                                }
+                           }
+                       ) {innerPadding->
+                           Box(modifier = Modifier.padding(innerPadding)) {
+                               App(navController)
+                           }
                        }
                    }
                }
@@ -135,7 +134,7 @@ fun App(navController: NavHostController ) {
         composable("register") {
             if(sp.token.isNotEmpty() && userProfileState.value != null) {
                 LaunchedEffect(key1 = Unit) {
-                    navController.navigate("main") {
+                    navController.navigate("home") {
                         popUpTo("login") {
                             inclusive=true
                         }
@@ -143,18 +142,19 @@ fun App(navController: NavHostController ) {
                     }
                 }
             }
+
              RegistrationScreen(navController=navController)
         }
         composable("login") {
             LoginScreen(navController = navController)
         }
-        composable("main") {
-            MainScreen(navController = navController)
+        composable("home") {
+            HomeScreen(navController = navController)
         }
         composable("profile") {
             ProfileScreen()
         }
-        composable("job") {
+        composable("jobs") {
             JobScreen()
         }
     }
@@ -176,7 +176,7 @@ data class BottomNavigationItem(
                 label = "Home",
                 icon = Icons.Filled.Home,
                 outLinedIcon = Icons.Outlined.Home,
-                route = "main"
+                route = "home"
             ),
             BottomNavigationItem(
                 label = "Inbox",
@@ -188,7 +188,7 @@ data class BottomNavigationItem(
                 label = "Jobs",
                 icon = ImageVector.vectorResource(id = R.drawable.baseline_work_24),
                 outLinedIcon = ImageVector.vectorResource(id = R.drawable.outline_work_outline_24),
-                route = "job"
+                route = "jobs"
             ),
             BottomNavigationItem(
                 label = "Profile",
@@ -313,5 +313,28 @@ fun RowScope.CustomsBottomNavItems(
             icon()
             Text(text = label, color = textColor, fontSize = 13.sp)
         }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun TopNavBar(title:String,navController: NavController,modifier: Modifier= Modifier) {
+    Column() {
+        TopAppBar(
+            title = {Text(text = title.replaceFirstChar { it.uppercase() }, fontWeight = FontWeight.Bold)},
+            modifier = Modifier
+                .background(Color.White),
+            actions = {
+                IconButton(onClick = { /*TODO*/ }) {
+                    Icon(Icons.Outlined.Notifications, contentDescription = "Notification")
+                }
+            }
+        )
+        Divider (
+            color = Color(0xFFF0F2F5),
+            modifier = Modifier
+                .height(1.dp)
+                .fillMaxWidth()
+        )
     }
 }

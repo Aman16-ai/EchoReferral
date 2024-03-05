@@ -69,7 +69,7 @@ fun LoginScreen(modifier: Modifier=Modifier,navController: NavController) {
             if (token != null) {
                 sp.token = token
                 LaunchedEffect(key1 = Unit) {
-                    navController.navigate("main")
+                    navController.navigate("home")
                 }
             }
         }

@@ -1,13 +1,11 @@
-package com.example.echoreferral.ui.main
+package com.example.echoreferral.ui.home
 
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavController
-import com.example.echoreferral.data.repository.sharedPreferreneceManager.SharedPreferrenceManagerRepo
 
 @Composable
-fun MainScreen(navController: NavController) {
+fun HomeScreen(navController: NavController) {
 //    val sp = SharedPreferrenceManagerRepo(LocalContext.current)
     Text(text = "This is the home screen welcome")
 

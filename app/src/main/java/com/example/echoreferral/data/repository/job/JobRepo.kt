@@ -7,5 +7,7 @@ import com.example.echoreferral.utils.ApiState
 interface JobRepo {
 
     val jobsResponse : LiveData<ApiState<List<Job>?>>
+    val jobResponse : LiveData<ApiState<Job?>>
     suspend fun getAllJobs()
+    suspend fun getJob(id:Int)
 }

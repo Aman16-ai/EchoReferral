@@ -6,7 +6,6 @@ import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -48,22 +47,27 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.vectorResource
-import androidx.compose.ui.text.capitalize
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
+import coil.compose.AsyncImage
 import com.example.echoreferral.data.repository.sharedPreferreneceManager.SharedPreferrenceManagerRepo
+import com.example.echoreferral.ui.common.viewmodels.TopNavBarViewModel
 import com.example.echoreferral.ui.common.viewmodels.UserViewModel
 import com.example.echoreferral.ui.home.HomeScreen
 import com.example.echoreferral.ui.job.JobScreen
+import com.example.echoreferral.ui.job.jobDetail.JobDetailScreen
 import com.example.echoreferral.ui.profile.ProfileScreen
 import com.example.echoreferral.ui.registration.LoginScreen
 
@@ -83,6 +87,7 @@ class MainActivity : ComponentActivity() {
                Surface {
                    val navController = rememberNavController()
                    val navBackStackEntry by navController.currentBackStackEntryAsState()
+                   val topNavBarViewModel : TopNavBarViewModel = viewModel()
                    var navigationSelectedItem by remember {
                        mutableStateOf(0)
                    }
@@ -96,19 +101,19 @@ class MainActivity : ComponentActivity() {
                            topBar = {
                                val currentRoute = navBackStackEntry?.destination?.route
                                if(currentRoute != "register" && currentRoute != "login") {
-                                   TopNavBar(title=currentRoute?:"Home",navController = navController)
+                                   TopNavBar(topNavBarViewModel=topNavBarViewModel,title=currentRoute?:"Home",navController = navController)
                                }
                            },
                            bottomBar = {
                                val currentRoute = navBackStackEntry?.destination?.route
                                Log.d("route", "onCreate: $currentRoute")
-                               if(currentRoute != "register" && currentRoute != "login") {
+                               if(currentRoute != "register" && currentRoute != "login" && currentRoute != "jobs/{id}") {
                                     BottomNavigationGraph(navController = navController,navigationSelectedItem,onIndexChange)
                                 }
                            }
                        ) {innerPadding->
                            Box(modifier = Modifier.padding(innerPadding)) {
-                               App(navController)
+                               App(topNavBarViewModel,navController)
                            }
                        }
                    }
@@ -119,7 +124,7 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun App(navController: NavHostController ) {
+fun App(topNavBarViewModel: TopNavBarViewModel,navController: NavHostController ) {
     val sp = SharedPreferrenceManagerRepo(LocalContext.current)
     val userViewModel : UserViewModel = viewModel()
     val userProfileState = userViewModel.userProfile.observeAsState()
@@ -127,9 +132,6 @@ fun App(navController: NavHostController ) {
         userViewModel.getUserProfileDetails(sp.token)
     }
 
-//    LaunchedEffect(key1 = userProfileState.value) {
-//        Log.d("userprofile", "App: ${userProfileState.value.toString()}")
-//    }
     NavHost(navController = navController, startDestination = "register") {
         composable("register") {
             if(sp.token.isNotEmpty() && userProfileState.value != null) {
@@ -155,7 +157,15 @@ fun App(navController: NavHostController ) {
             ProfileScreen()
         }
         composable("jobs") {
-            JobScreen()
+            JobScreen(topNavBarViewModel = topNavBarViewModel, navController=navController)
+        }
+        composable("jobs/{id}", arguments = listOf(
+            navArgument("id") {
+                type = NavType.IntType
+            }
+        )) {
+            val id = it.arguments!!.getInt("id")
+            JobDetailScreen(id)
         }
     }
 }
@@ -202,34 +212,6 @@ data class BottomNavigationItem(
 @Composable
 fun BottomNavigationGraph(navController: NavController,navigationSelectedItem : Int,onIndexChange : (i : Int) -> Unit) {
 
-//    NavigationBar {
-//        BottomNavigationItem().bottomNavigationItems()
-//            .forEachIndexed { index, navigationItem ->
-//                NavigationBarItem(
-//                    selected = index == navigationSelectedItem,
-//                    label = {
-//                            Text(navigationItem.label)
-//                    },
-//                    icon = {
-//                        Icon(navigationItem.icon, contentDescription = navigationItem.label)
-//                    },
-//                    onClick = {
-//
-////                        navigationSelectedItem = index
-//                        onIndexChange(index)
-//                        navController.navigate(navigationItem.route) {
-//                            popUpTo(navController.graph.findStartDestination().id) {
-//                                saveState = true
-//                            }
-//                            launchSingleTop = true
-//                            restoreState = true
-//                        }
-//
-//                    })
-//
-//            }
-//
-//    }
     Column() {
         Divider (
             color = Color(0xFFF0F2F5),
@@ -270,7 +252,6 @@ fun BottomNavigationGraph(navController: NavController,navigationSelectedItem : 
                         },
                         onClick ={
 
-//                        navigationSelectedItem = index
                             onIndexChange(index)
                             navController.navigate(navigationItem.route) {
                                 popUpTo(navController.graph.findStartDestination().id) {
@@ -318,18 +299,28 @@ fun RowScope.CustomsBottomNavItems(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TopNavBar(title:String,navController: NavController,modifier: Modifier= Modifier) {
+fun TopNavBar(topNavBarViewModel: TopNavBarViewModel,title: String, navController: NavController, modifier: Modifier= Modifier) {
+    val organisationStatus = topNavBarViewModel.organisationStatus.observeAsState()
     Column() {
-        TopAppBar(
-            title = {Text(text = title.replaceFirstChar { it.uppercase() }, fontWeight = FontWeight.Bold)},
-            modifier = Modifier
-                .background(Color.White),
-            actions = {
-                IconButton(onClick = { /*TODO*/ }) {
-                    Icon(Icons.Outlined.Notifications, contentDescription = "Notification")
-                }
+        var navbarTitle:String? = title.replaceFirstChar { it.uppercase() }
+        var navbarTitleFontSize = 23.sp
+        Row(modifier = modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.Center,) {
+            if(title=="jobs/{id}") {
+                navbarTitle = organisationStatus.value?.name
+                navbarTitleFontSize = 18.sp
+                AsyncImage(model = organisationStatus.value?.img, contentDescription = "Org. img",modifier = modifier.padding(start = 3.dp).size(45.dp))
             }
-        )
+            TopAppBar(
+                title = {Text(text = navbarTitle?:"Navbar", fontSize = navbarTitleFontSize, fontWeight = FontWeight.Bold, overflow = TextOverflow.Ellipsis)},
+                modifier = Modifier
+                    .background(Color.White),
+                actions = {
+                    IconButton(onClick = { /*TODO*/ }) {
+                        Icon(Icons.Outlined.Notifications, contentDescription = "Notification")
+                    }
+                }
+            )
+        }
         Divider (
             color = Color(0xFFF0F2F5),
             modifier = Modifier

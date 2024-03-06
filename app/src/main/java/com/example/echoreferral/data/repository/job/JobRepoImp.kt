@@ -9,18 +9,37 @@ import com.example.echoreferral.utils.ApiState
 
 class JobRepoImp : JobRepo {
 
-    private var _jobResponse : MutableLiveData<ApiState<List<Job>?>> = MutableLiveData()
+    private var _jobsResponse : MutableLiveData<ApiState<List<Job>?>> = MutableLiveData()
     override val jobsResponse : LiveData<ApiState<List<Job>?>>
-        get() = _jobResponse
+        get() = _jobsResponse
 
+
+    private var _jobResponse : MutableLiveData<ApiState<Job?>> = MutableLiveData()
+
+    override val jobResponse: LiveData<ApiState<Job?>>
+        get() = _jobResponse
     override suspend fun getAllJobs() {
         try {
-            _jobResponse.postValue(ApiState.Loading())
+            _jobsResponse.postValue(ApiState.Loading())
             val result = JobService
                 .jobServiceInstance
                 .getJobs()
                 .body()
-            _jobResponse.postValue(ApiState.Success(result?.Response))
+            _jobsResponse.postValue(ApiState.Success(result?.Response))
+        }
+        catch (err : Error) {
+            _jobsResponse.postValue(ApiState.Error(message = err.toString()))
+        }
+    }
+
+    override suspend fun getJob(id: Int) {
+        try {
+            _jobResponse.postValue(ApiState.Loading())
+            val result = JobService
+                .jobServiceInstance
+                .getJob(id)
+                .body()
+            _jobResponse.postValue(ApiState.Success(data=result?.Response))
         }
         catch (err : Error) {
             _jobResponse.postValue(ApiState.Error(message = err.toString()))

@@ -18,11 +18,13 @@ import androidx.compose.ui.modifier.modifierLocalConsumer
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
+import com.example.echoreferral.ui.common.viewmodels.TopNavBarViewModel
 import com.example.echoreferral.ui.job.components.JobCard
 import com.example.echoreferral.utils.ApiState
 
 @Composable
-fun JobScreen(modifier: Modifier = Modifier) {
+fun JobScreen(topNavBarViewModel: TopNavBarViewModel,navController: NavController,modifier: Modifier = Modifier) {
     val jobViewModel : JobViewModel = viewModel()
     val jobResponse = jobViewModel.jobResponse.observeAsState()
     LaunchedEffect(key1 = Unit) {
@@ -46,7 +48,7 @@ fun JobScreen(modifier: Modifier = Modifier) {
         LazyColumn(content = {
             jobResponse.value?.data?.let {
                 items(it) {
-                    JobCard(it)
+                    JobCard(topNavBarViewModel=topNavBarViewModel,navController=navController, job = it)
                 }
             }
         })

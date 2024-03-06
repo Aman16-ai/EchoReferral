@@ -2,6 +2,7 @@ package com.example.echoreferral.ui.job.components
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -21,13 +22,21 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.example.echoreferral.R
 import com.example.echoreferral.data.model.entities.Job
+import com.example.echoreferral.ui.common.MDivider
+import com.example.echoreferral.ui.common.viewmodels.TopNavBarViewModel
 
 @Composable
-fun JobCard(job : Job,modifier:Modifier = Modifier) {
-    Box(modifier = Modifier.fillMaxWidth()) {
+fun JobCard(topNavBarViewModel: TopNavBarViewModel,navController: NavController,job : Job,modifier:Modifier = Modifier) {
+    Box(modifier = Modifier
+        .fillMaxWidth()
+        .clickable {
+            topNavBarViewModel.setOrganisation(job.organisation)
+            navController.navigate("jobs/${job.id}")
+        }) {
         Row(modifier = modifier
             .fillMaxWidth()
             .padding(10.dp)
@@ -69,13 +78,7 @@ fun JobCard(job : Job,modifier:Modifier = Modifier) {
                     fontSize = 14.sp
                 )
 
-                Divider (
-                    color = Color(0xFFF0F2F5),
-                    modifier = Modifier
-                        .height(1.dp)
-                        .fillMaxWidth()
-
-                )
+                MDivider()
             }
         }
     }

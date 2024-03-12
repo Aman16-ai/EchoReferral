@@ -45,6 +45,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import com.example.echoreferral.R
 import com.example.echoreferral.ui.common.MDivider
+import com.example.echoreferral.ui.job.components.RaiseReferralRequestDialog
 import com.example.echoreferral.utils.ApiState
 
 
@@ -53,6 +54,9 @@ fun JobDetailScreen(id : Int,modifier: Modifier = Modifier) {
     val jobDetailViewModel : JobDetailViewModel = viewModel()
     val jobDetailStatus = jobDetailViewModel.jobResponse.observeAsState()
     var loading by remember{
+        mutableStateOf(false)
+    }
+    var openReferralRequestModal by remember {
         mutableStateOf(false)
     }
     LaunchedEffect(key1 = Unit) {
@@ -77,9 +81,16 @@ fun JobDetailScreen(id : Int,modifier: Modifier = Modifier) {
         .fillMaxWidth()
         .padding(10.dp)) {
         if(!loading) {
+            if(openReferralRequestModal) {
+                RaiseReferralRequestDialog {
+                    openReferralRequestModal = false
+                }
+            }
             Column(verticalArrangement = Arrangement.SpaceBetween) {
-                Column(modifier = Modifier.fillMaxHeight().verticalScroll(rememberScrollState())
-                    .weight(1f,false)) {
+                Column(modifier = Modifier
+                    .fillMaxHeight()
+                    .verticalScroll(rememberScrollState())
+                    .weight(1f, false)) {
                     AsyncImage(
                         model = jobDetailStatus.value?.data?.organisation?.img,
                         contentDescription = "org",
@@ -108,7 +119,7 @@ fun JobDetailScreen(id : Int,modifier: Modifier = Modifier) {
                     )
                     LazyVerticalGrid(
                         columns = GridCells.Fixed(2),
-                        modifier=modifier
+                        modifier= modifier
                             .fillMaxWidth()
                             .height(120.dp)
 
@@ -166,7 +177,7 @@ fun JobDetailScreen(id : Int,modifier: Modifier = Modifier) {
                             .padding(top=10.dp)
                     )
                     Button(
-                        onClick = { /*TODO*/ },
+                        onClick = { openReferralRequestModal = true },
                         modifier = modifier
                             .fillMaxWidth()
                             .padding(12.dp)
@@ -179,7 +190,9 @@ fun JobDetailScreen(id : Int,modifier: Modifier = Modifier) {
             }
         }
         else {
-            Row(modifier = Modifier.fillMaxWidth().fillMaxHeight(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.Center) {
+            Row(modifier = Modifier
+                .fillMaxWidth()
+                .fillMaxHeight(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.Center) {
                 CircularProgressIndicator(
                     modifier = Modifier.width(40.dp),
                     color = MaterialTheme.colorScheme.secondary,

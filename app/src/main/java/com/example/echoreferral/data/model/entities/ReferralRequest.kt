@@ -7,6 +7,8 @@ data class ReferralRequest(
     val job: Int?,
     val organisation: Int?,
     val pitch: String?,
+    val candidate:Int?,
+    val score : Float?,
     @SerializedName("created_at")
     val createdAt: String?,
     @SerializedName("updated_at")

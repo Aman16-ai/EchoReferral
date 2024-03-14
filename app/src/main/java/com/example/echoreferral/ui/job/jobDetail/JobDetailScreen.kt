@@ -1,6 +1,7 @@
 package com.example.echoreferral.ui.job.jobDetail
 
 import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
 import androidx.compose.foundation.gestures.scrollable
@@ -36,6 +37,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -53,6 +55,7 @@ import com.example.echoreferral.utils.ApiState
 fun JobDetailScreen(id : Int,modifier: Modifier = Modifier) {
     val jobDetailViewModel : JobDetailViewModel = viewModel()
     val jobDetailStatus = jobDetailViewModel.jobResponse.observeAsState()
+    val createReferralRequestResponseStatus = jobDetailViewModel.referralRequestCreatedResponse.observeAsState()
     var loading by remember{
         mutableStateOf(false)
     }
@@ -61,6 +64,21 @@ fun JobDetailScreen(id : Int,modifier: Modifier = Modifier) {
     }
     LaunchedEffect(key1 = Unit) {
         jobDetailViewModel.getJob(id)
+    }
+    when(createReferralRequestResponseStatus.value) {
+        is ApiState.Success -> {
+            loading = false
+            Toast.makeText(LocalContext.current,"Referral created ${createReferralRequestResponseStatus.value?.data?.pitch}",Toast.LENGTH_LONG).show()
+        }
+        is ApiState.Loading -> {
+            loading = true
+        }
+        is ApiState.Error -> {
+            loading = false
+        }
+        else -> {
+
+        }
     }
     when(jobDetailStatus.value) {
         is ApiState.Success -> {
@@ -82,7 +100,7 @@ fun JobDetailScreen(id : Int,modifier: Modifier = Modifier) {
         .padding(10.dp)) {
         if(!loading) {
             if(openReferralRequestModal) {
-                RaiseReferralRequestDialog {
+                RaiseReferralRequestDialog(jobId = jobDetailStatus.value?.data?.id!!, organisationId = jobDetailStatus.value?.data?.organisation?.id!!,vm=jobDetailViewModel) {
                     openReferralRequestModal = false
                 }
             }

@@ -1,5 +1,6 @@
 package com.example.echoreferral.ui.job.components
 
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -27,15 +28,22 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
+import com.example.echoreferral.data.model.payload.referral_request.ReferralRequestPayload
+import com.example.echoreferral.data.repository.sharedPreferreneceManager.SharedPreferrenceManagerRepo
+import com.example.echoreferral.ui.common.toast
+import com.example.echoreferral.ui.job.jobDetail.JobDetailViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun RaiseReferralRequestDialog(onDismissRequest : ()->Unit) {
+fun RaiseReferralRequestDialog(jobId:Int,organisationId:Int,vm:JobDetailViewModel,onDismissRequest : ()->Unit) {
+    val context = LocalContext.current
+    val sp = SharedPreferrenceManagerRepo(LocalContext.current)
     var pitchStatus by remember {
         mutableStateOf("")
     }
@@ -74,7 +82,15 @@ fun RaiseReferralRequestDialog(onDismissRequest : ()->Unit) {
                     TextButton(onClick = { onDismissRequest() }) {
                         Text(text = "Cancel")
                     }
-                    TextButton(onClick = { /*TODO*/ }) {
+                    TextButton(onClick = {
+                        val payload = ReferralRequestPayload(
+                            job = jobId,
+                            organisation = organisationId,
+                            pitch = pitchStatus
+                        )
+//                        context.toast(sp.token.toString())
+                        vm.createReferralRequest(payload,sp.token)
+                    }) {
                         Text(text = "Create")
                     }
                 }

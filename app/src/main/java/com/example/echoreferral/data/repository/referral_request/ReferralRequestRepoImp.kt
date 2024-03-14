@@ -21,9 +21,20 @@ class ReferralRequestRepoImp : ReferralRequestRepo{
         try {
             _referralRequestcreatedResponse.postValue(ApiState.Loading())
             val result = ReferralRequestService.referralRequestInstance
-                .postReferralRequest(token,referralRequestPayload)
+                .postReferralRequest("Bearer "+token,referralRequestPayload)
                 .body()
-            _referralRequestcreatedResponse.postValue(ApiState.Success(data=result?.Response))
+            val postReferralRequestData = result?.Response
+            val referralRequest = ReferralRequest(
+                id = postReferralRequestData?.id,
+                job = postReferralRequestData?.job,
+                organisation = postReferralRequestData?.organisation,
+                pitch = postReferralRequestData?.pitch,
+                createdAt = postReferralRequestData?.createdAt,
+                updatedAt = postReferralRequestData?.updatedAt,
+                score = null,
+                candidate = null,
+            )
+            _referralRequestcreatedResponse.postValue(ApiState.Success(data=referralRequest))
         }
         catch (e : Exception) {
             _referralRequestcreatedResponse.postValue(ApiState.Error(message = "Something went wrong"))

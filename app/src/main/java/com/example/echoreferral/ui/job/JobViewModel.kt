@@ -2,6 +2,7 @@ package com.example.echoreferral.ui.job
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.echoreferral.data.model.entities.UserProfile
 import com.example.echoreferral.data.model.payload.referral_request.ReferralRequestPayload
 import com.example.echoreferral.data.repository.job.JobRepo
 import com.example.echoreferral.data.repository.job.JobRepoImp
@@ -20,5 +21,13 @@ class JobViewModel:ViewModel() {
         }
     }
 
+    fun getAllJobsOfCurrOrgansiationofUser(userProfile: UserProfile) {
+        viewModelScope.launch {
+            val userCurrOrg = userProfile.curr_orgs
+            if(userCurrOrg?.isEmpty() == false) {
+                userCurrOrg[0].organisation?.let { jobRepo.getJobsByOrganisation(it) }
+            }
+        }
+    }
 
 }

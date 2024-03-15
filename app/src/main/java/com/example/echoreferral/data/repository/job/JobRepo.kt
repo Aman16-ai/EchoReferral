@@ -10,4 +10,5 @@ interface JobRepo {
     val jobResponse : LiveData<ApiState<Job?>>
     suspend fun getAllJobs()
     suspend fun getJob(id:Int)
+    suspend fun getJobsByOrganisation(orgId:Int)
 }

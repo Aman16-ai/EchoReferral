@@ -10,8 +10,9 @@ import com.example.echoreferral.utils.ApiState
 interface ReferralRequestRepo {
 
     val referralRequestcreatedResponse : LiveData<ApiState<ReferralRequest?>>
-    val allReferralRequests : LiveData<ApiState<List<ReferralRequest>>>
+    val allReferralRequests : LiveData<ApiState<List<ReferralRequest>?>>
 
 
     suspend fun createRequest(referralRequestPayload: ReferralRequestPayload,token:String)
+    suspend fun getAllRequestOfJob(token: String,jobId:Int)
 }

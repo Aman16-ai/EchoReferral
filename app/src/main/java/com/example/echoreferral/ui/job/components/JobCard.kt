@@ -30,12 +30,17 @@ import com.example.echoreferral.ui.common.MDivider
 import com.example.echoreferral.ui.common.viewmodels.TopNavBarViewModel
 
 @Composable
-fun JobCard(topNavBarViewModel: TopNavBarViewModel,navController: NavController,job : Job,modifier:Modifier = Modifier) {
+fun JobCard(topNavBarViewModel: TopNavBarViewModel,navController: NavController,job : Job,modifier:Modifier = Modifier,requestRouteEnable:Boolean=false) {
     Box(modifier = Modifier
         .fillMaxWidth()
         .clickable {
             topNavBarViewModel.setOrganisation(job.organisation)
-            navController.navigate("jobs/${job.id}")
+            if (requestRouteEnable) {
+                navController.navigate("allRequests/${job.id}")
+            }
+            else {
+                navController.navigate("jobs/${job.id}")
+            }
         }) {
         Row(modifier = modifier
             .fillMaxWidth()

@@ -8,8 +8,8 @@ import com.example.echoreferral.data.service.ReferralRequestService
 import com.example.echoreferral.utils.ApiState
 
 class ReferralRequestRepoImp : ReferralRequestRepo{
-    private var _allReferralRequests : MutableLiveData<ApiState<List<ReferralRequest>>> = MutableLiveData()
-    override val allReferralRequests: LiveData<ApiState<List<ReferralRequest>>>
+    private var _allReferralRequests : MutableLiveData<ApiState<List<ReferralRequest>?>> = MutableLiveData()
+    override val allReferralRequests: LiveData<ApiState<List<ReferralRequest>?>>
         get() = _allReferralRequests
 
     private var _referralRequestcreatedResponse : MutableLiveData<ApiState<ReferralRequest?>> = MutableLiveData()
@@ -38,6 +38,19 @@ class ReferralRequestRepoImp : ReferralRequestRepo{
         }
         catch (e : Exception) {
             _referralRequestcreatedResponse.postValue(ApiState.Error(message = "Something went wrong"))
+        }
+    }
+
+    override suspend fun getAllRequestOfJob(token: String, jobId: Int) {
+        try {
+            _allReferralRequests.postValue(ApiState.Loading())
+            val result = ReferralRequestService.referralRequestInstance
+                .getAllReferralRequestOfJob(token = "Bearer $token", jobId = jobId)
+                .body()
+            _allReferralRequests.postValue(ApiState.Success(data = result?.Response))
+        }
+        catch (e:Exception) {
+            _allReferralRequests.postValue(ApiState.Error(message = e.toString()))
         }
     }
 

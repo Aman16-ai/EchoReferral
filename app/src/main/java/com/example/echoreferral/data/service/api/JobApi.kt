@@ -6,6 +6,7 @@ import com.example.echoreferral.data.service.BaseApi
 import retrofit2.Response
 import retrofit2.http.GET
 import retrofit2.http.Path
+import retrofit2.http.Query
 
 interface JobApi {
 
@@ -14,4 +15,7 @@ interface JobApi {
 
     @GET("/api/job/{id}")
     suspend fun getJob(@Path("id") id:Int) : Response<GetJobResponse>
+
+    @GET("/api/job")
+    suspend fun getJobsByOrganisation(@Query("organisation__id") orgId : Int) : Response<GetJobsResponse>
 }

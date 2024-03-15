@@ -69,6 +69,8 @@ import com.example.echoreferral.ui.home.HomeScreen
 import com.example.echoreferral.ui.job.JobScreen
 import com.example.echoreferral.ui.job.jobDetail.JobDetailScreen
 import com.example.echoreferral.ui.profile.ProfileScreen
+import com.example.echoreferral.ui.referral_request_inbox.job_requests.JobRequestsScreen
+import com.example.echoreferral.ui.referral_request_inbox.requestInboxScreen
 import com.example.echoreferral.ui.registration.LoginScreen
 
 import com.example.echoreferral.ui.registration.RegistrationScreen
@@ -167,6 +169,23 @@ fun App(topNavBarViewModel: TopNavBarViewModel,navController: NavHostController 
             val id = it.arguments!!.getInt("id")
             JobDetailScreen(id)
         }
+
+        composable("requestInbox") {
+            requestInboxScreen(
+                topBarVm = topNavBarViewModel,
+                userVm = userViewModel,
+                navController = navController
+            )
+        }
+        
+        composable("allRequests/{id}",arguments = listOf(
+            navArgument("id") {
+                type = NavType.IntType
+            }
+        )) {
+            val id = it.arguments!!.getInt("id")
+            JobRequestsScreen(jobId = id)
+        }
     }
 }
 
@@ -192,7 +211,7 @@ data class BottomNavigationItem(
                 label = "Inbox",
                 icon = Icons.Filled.Send,
                 outLinedIcon = Icons.Outlined.Send,
-                route = "inbox"
+                route = "requestInbox"
             ),
             BottomNavigationItem(
                 label = "Jobs",
@@ -308,7 +327,15 @@ fun TopNavBar(topNavBarViewModel: TopNavBarViewModel,title: String, navControlle
             if(title=="jobs/{id}") {
                 navbarTitle = organisationStatus.value?.name
                 navbarTitleFontSize = 18.sp
-                AsyncImage(model = organisationStatus.value?.img, contentDescription = "Org. img",modifier = modifier.padding(start = 3.dp).size(45.dp))
+                AsyncImage(model = organisationStatus.value?.img, contentDescription = "Org. img",modifier = modifier
+                    .padding(start = 3.dp)
+                    .size(45.dp))
+            }
+            if(title == "requestInbox") {
+                navbarTitle = "Inbox"
+            }
+            if(title == "allRequests/{id}") {
+                navbarTitle = "Requests"
             }
             TopAppBar(
                 title = {Text(text = navbarTitle?:"Navbar", fontSize = navbarTitleFontSize, fontWeight = FontWeight.Bold, overflow = TextOverflow.Ellipsis)},

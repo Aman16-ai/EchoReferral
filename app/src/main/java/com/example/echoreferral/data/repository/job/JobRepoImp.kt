@@ -46,4 +46,18 @@ class JobRepoImp : JobRepo {
         }
     }
 
+    override suspend fun getJobsByOrganisation(orgId: Int) {
+        try {
+            _jobsResponse.postValue(ApiState.Loading())
+            val result = JobService
+                .jobServiceInstance
+                .getJobsByOrganisation(orgId)
+                .body()
+            _jobsResponse.postValue(ApiState.Success(result?.Response))
+        }
+        catch (err:Exception) {
+            _jobsResponse.postValue(ApiState.Error(message = err.toString()))
+        }
+    }
+
 }

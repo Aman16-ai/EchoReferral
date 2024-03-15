@@ -5,7 +5,8 @@ data class UserProfile(
     val user:User?,
     val headline:String?,
     val profile_completed:Boolean?,
-    val profile_progress:Double?
+    val profile_progress:Double?,
+    val curr_orgs : List<Experience>?
 ) {
     data class User(
         val id:Int?,

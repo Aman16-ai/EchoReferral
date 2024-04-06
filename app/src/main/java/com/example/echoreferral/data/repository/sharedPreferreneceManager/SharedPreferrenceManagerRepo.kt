@@ -24,6 +24,9 @@ class SharedPreferrenceManagerRepo(context: Context) : SharedPreferrenceManagerR
             editor.commit()
         }
 
+    fun deleteToken() {
+        editor.remove(key).apply()
+    }
     private var _auth_token = MutableLiveData<String?>()
     override val auth_token:LiveData<String?>
         get() = _auth_token

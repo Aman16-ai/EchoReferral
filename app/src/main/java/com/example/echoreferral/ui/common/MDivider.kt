@@ -12,7 +12,7 @@ import androidx.compose.ui.unit.dp
 fun MDivider(modifier: Modifier=Modifier) {
     Divider (
         color = Color(0xFFF0F2F5),
-        modifier = Modifier
+        modifier = modifier
             .height(1.dp)
             .fillMaxWidth()
 

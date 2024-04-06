@@ -21,12 +21,15 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Send
 import androidx.compose.material.icons.outlined.AccountCircle
 import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.Notifications
 import androidx.compose.material.icons.outlined.Send
 import androidx.compose.material3.Divider
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -153,7 +156,7 @@ fun App(topNavBarViewModel: TopNavBarViewModel,navController: NavHostController 
             LoginScreen(navController = navController)
         }
         composable("home") {
-            HomeScreen(navController = navController)
+            HomeScreen(navController = navController, topNavBarViewModel = topNavBarViewModel)
         }
         composable("profile") {
             ProfileScreen()
@@ -345,6 +348,10 @@ fun TopNavBar(topNavBarViewModel: TopNavBarViewModel,title: String, navControlle
                     IconButton(onClick = { /*TODO*/ }) {
                         Icon(Icons.Outlined.Notifications, contentDescription = "Notification")
                     }
+                    if(title == "profile") {
+                        overFlowMenu(navController)
+                    }
+
                 }
             )
         }
@@ -356,3 +363,28 @@ fun TopNavBar(topNavBarViewModel: TopNavBarViewModel,title: String, navControlle
         )
     }
 }
+
+
+@Composable
+fun overFlowMenu(navController: NavController,modifier: Modifier=Modifier) {
+    val sp = SharedPreferrenceManagerRepo(LocalContext.current)
+    val handleLogout  = {
+        sp.deleteToken()
+        navController.navigate("login")
+    }
+    var showMenu by remember {
+        mutableStateOf(false)
+    }
+    IconButton(onClick = {showMenu = !showMenu}) {
+        Icon(Icons.Default.MoreVert, contentDescription = "more")
+    }
+    DropdownMenu(
+        expanded = showMenu,
+        onDismissRequest = { showMenu = false }
+    ) {
+        DropdownMenuItem(text = {
+                                Text("Logout")
+        }, onClick = { handleLogout() })
+    }
+}
+

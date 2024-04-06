@@ -2,6 +2,7 @@ package com.example.echoreferral.data.service.api
 
 import com.example.echoreferral.data.model.payload.referral_request.ReferralRequestPayload
 import com.example.echoreferral.data.model.response.referral_request.GetAllReferralRequestResponse
+import com.example.echoreferral.data.model.response.referral_request.GetRequestStatus
 import com.example.echoreferral.data.model.response.referral_request.ReferralRequestResponse
 import retrofit2.Response
 import retrofit2.http.Body
@@ -20,4 +21,9 @@ interface ReferralRequestApi {
         @Header("Authorization") token: String,
         @Query("job__id") jobId:Int
     ) : Response<GetAllReferralRequestResponse>
+
+    @GET("/api/referral_request/get_user_requests_status")
+    suspend fun getUserReferralRequestStatus(
+        @Header("Authorization") token: String,
+    ) : Response<GetRequestStatus>
 }

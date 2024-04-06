@@ -21,12 +21,19 @@ class JobViewModel:ViewModel() {
         }
     }
 
+
     fun getAllJobsOfCurrOrgansiationofUser(userProfile: UserProfile) {
         viewModelScope.launch {
             val userCurrOrg = userProfile.curr_orgs
             if(userCurrOrg?.isEmpty() == false) {
                 userCurrOrg[0].organisation?.let { jobRepo.getJobsByOrganisation(it) }
             }
+        }
+    }
+
+    fun getRecentJobs() {
+        viewModelScope.launch {
+            jobRepo.getRecentJobs()
         }
     }
 

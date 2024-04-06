@@ -18,4 +18,7 @@ interface JobApi {
 
     @GET("/api/job")
     suspend fun getJobsByOrganisation(@Query("organisation__id") orgId : Int) : Response<GetJobsResponse>
+
+    @GET("/api/job/get_recent_jobs")
+    suspend fun getRecentJobs() : Response<GetJobsResponse>
 }

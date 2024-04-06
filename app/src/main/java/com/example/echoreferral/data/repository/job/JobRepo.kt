@@ -11,4 +11,5 @@ interface JobRepo {
     suspend fun getAllJobs()
     suspend fun getJob(id:Int)
     suspend fun getJobsByOrganisation(orgId:Int)
+    suspend fun getRecentJobs()
 }

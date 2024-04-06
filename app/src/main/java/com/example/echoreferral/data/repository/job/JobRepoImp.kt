@@ -60,4 +60,18 @@ class JobRepoImp : JobRepo {
         }
     }
 
+    override suspend fun getRecentJobs() {
+        try {
+            _jobsResponse.postValue(ApiState.Loading())
+            val result = JobService
+                .jobServiceInstance
+                .getRecentJobs()
+                .body()
+            _jobsResponse.postValue(ApiState.Success(result?.Response))
+        }
+        catch (err : Error) {
+            _jobsResponse.postValue(ApiState.Error(message = err.toString()))
+        }
+    }
+
 }
